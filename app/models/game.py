@@ -16,6 +16,6 @@ class Result(Base):
     player_id = Column(Integer, ForeignKey("users.id"))
     player_hand = Column(Integer)  # 0:グー, 1:チョキ, 2:パー
     cpu_hand = Column(Integer)
-    result = Column(String)        # 勝ち/負け/引き分け
+    result = Column(Integer)        # 勝ち/負け/引き分け
     created_at = Column(DateTime, default=datetime.datetime.now)
     owner = relationship("User", back_populates="results")
