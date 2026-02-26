@@ -12,16 +12,12 @@ def janken(player_hand: int, db: Session = Depends(get_db)):
     # 0:グー, 1:チョキ, 2:パー
     cpu_hand = random.randint(0, 2)
     
-    # ここで勝ち負けを判定
+    # ここで勝ち負けを判定 0:あいこ 1:負け 2:勝ち
     if player_hand == cpu_hand:
-        result = "あいこ"
         result_code = 0
-    # ここから下に「勝ち」と「負け」のパターンを追加
     elif (player_hand - cpu_hand+3)%3 == 2:
-        result = "勝ち"
         result_code = 2
     else:
-        result = "負け"
         result_code = 1
         
     new_record = Result(
@@ -51,6 +47,11 @@ def get_history(db: Session = Depends(get_db)):
     # 2. 判定結果に合わせた変換辞書
     hand_names = {0: "グー", 1: "チョキ", 2: "パー"}
     result_names = {0: "あいこ", 1: "負け", 2: "勝ち"}
+    
+    #集計用の計算
+    total = len(history)
+    wins = len([r for r in history if r.result == 2])
+    win_rate = round(wins / total * 100,1) if total > 0 else 0
 
     formatted_history = []
     for r in history:
@@ -63,4 +64,7 @@ def get_history(db: Session = Depends(get_db)):
             "date": r.created_at.strftime("%Y/%m/%d %H:%M") if r.created_at else "不明"
         })
     
-    return formatted_history
+    return {
+        "win_rate": f"{win_rate:.1f}%",
+        "total_games":total,
+        "history": formatted_history}
