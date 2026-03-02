@@ -7,8 +7,8 @@ from app.models.game import Result
 
 router = APIRouter()
 
-@router.get("/janken/{player_hand}")
-def janken(player_hand: int, db: Session = Depends(get_db)):
+@router.get("/janken/{player_id}/{player_hand}")
+def janken(player_id: int, player_hand: int, db: Session = Depends(get_db)):
     # 0:グー, 1:チョキ, 2:パー
     cpu_hand = random.randint(0, 2)
     
@@ -21,7 +21,7 @@ def janken(player_hand: int, db: Session = Depends(get_db)):
         result_code = 1
         
     new_record = Result(
-        player_id = 1,
+        player_id = player_id,
         player_hand = player_hand,
         cpu_hand = cpu_hand,
         result = result_code
@@ -39,10 +39,10 @@ def janken(player_hand: int, db: Session = Depends(get_db)):
         
     }
     
-@router.get("/history")
-def get_history(db: Session = Depends(get_db)):
+@router.get("/history/{player_id}")
+def get_history(player_id: int, db: Session = Depends(get_db)):
     # 1. DBからデータを新しい順に取得
-    history = db.query(Result).order_by(Result.id.desc()).all()
+    history = db.query(Result).filter(Result.player_id == player_id).order_by(Result.id.desc()).all()
     
     # 2. 判定結果に合わせた変換辞書
     hand_names = {0: "グー", 1: "チョキ", 2: "パー"}
@@ -67,4 +67,5 @@ def get_history(db: Session = Depends(get_db)):
     return {
         "win_rate": f"{win_rate:.1f}%",
         "total_games":total,
-        "history": formatted_history}
+        "history": formatted_history
+        }
