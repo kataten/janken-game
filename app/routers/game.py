@@ -40,21 +40,30 @@ def janken(player_id: int, player_hand: int, db: Session = Depends(get_db)):
     }
     
 @router.get("/history/{player_id}")
-def get_history(player_id: int, db: Session = Depends(get_db)):
-    # 1. DBからデータを新しい順に取得
-    history = db.query(Result).filter(Result.player_id == player_id).order_by(Result.id.desc()).all()
+def get_history(player_id: int,page: int = 1, db: Session = Depends(get_db)):
     
+    per_page = 10
+    skip = (page - 1) * per_page
+    
+    total_count = db.query(Result).filter(Result.player_id == player_id).count()
+    
+   # 指定されたページ分のデータだけ取得（最新順）
+    results = db.query(Result).filter(Result.player_id == player_id)\
+                .order_by(Result.id.desc())\
+                .offset(skip).limit(per_page).all()
+                
     # 2. 判定結果に合わせた変換辞書
     hand_names = {0: "グー", 1: "チョキ", 2: "パー"}
     result_names = {0: "あいこ", 1: "負け", 2: "勝ち"}
     
     #集計用の計算
-    total = len(history)
-    wins = len([r for r in history if r.result == 2])
+    all_results = db.query(Result).filter(Result.player_id == player_id).all()
+    total = len(all_results)
+    wins = len([r for r in all_results if r.result == 2])
     win_rate = round(wins / total * 100,1) if total > 0 else 0
 
     formatted_history = []
-    for r in history:
+    for r in results:
         formatted_history.append({
             "id": r.id,
             "player_id": r.player_id, 
@@ -67,5 +76,7 @@ def get_history(player_id: int, db: Session = Depends(get_db)):
     return {
         "win_rate": f"{win_rate:.1f}%",
         "total_games":total,
+        "current_page":page,
+        "total_pages":(total_count + per_page -1) // per_page,
         "history": formatted_history
         }

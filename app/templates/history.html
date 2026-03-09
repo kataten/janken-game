@@ -38,40 +38,59 @@
 
     <button class="btn" onclick="location.href='/top'">トップへ戻る</button>
 
-    <script>
+    <div style="margin-top: 20px;">
+    <button id="prev-btn" class="btn" onclick="changePage(-1)">◀ 前の10件</button>
+    <span id="page-info" style="margin: 0 15px;">1 / 1 ページ</span>
+    <button id="next-btn" class="btn" onclick="changePage(1)">次の10件 ▶</button>
+</div>
 
-            // ページ読み込み時にログインチェック
+<script>
+    // ページ読み込み時にログインチェック
         if (!localStorage.getItem('player_id')) {
             alert("ログインが必要です");
             window.location.href = "/";
+        }
+    let currentPage = 1;
+
+    async function loadHistory(page = 1) {
+        const playerId = localStorage.getItem('player_id');
+        
+        // APIにpageパラメータを渡す
+        const response = await fetch(`/history/${playerId}?page=${page}`);
+        const data = await response.json();
+
+        // 勝率などの表示
+        document.getElementById('win-rate').innerText = data.win_rate;
+        document.getElementById('total-games').innerText = `合計: ${data.total_games}戦`;
+        document.getElementById('page-info').innerText = `${data.current_page} / ${data.total_pages} ページ`;
+        currentPage = data.current_page;
+
+        // ボタンの有効・無効切り替え
+        document.getElementById('prev-btn').disabled = (currentPage === 1);
+        document.getElementById('next-btn').disabled = (currentPage >= data.total_pages);
+
+        // テーブルの描画（一度空にする）
+        const tableBody = document.getElementById('history-table');
+        tableBody.innerHTML = ""; 
+        
+        data.history.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.date}</td>
+                <td>${item.player_hand}</td>
+                <td>${item.cpu_hand}</td>
+                <td class="${item.result === '勝ち' ? 'result-win' : ''}">${item.result}</td>
+            `;
+            tableBody.appendChild(row);
+        });
     }
 
-        async function loadHistory() {
-            const playerId = localStorage.getItem('player_id');
-            if (!playerId) { window.location.href = "/"; return; }
+    function changePage(step) {
+        loadHistory(currentPage + step);
+    }
 
-            const response = await fetch(`/history/${playerId}`);
-            const data = await response.json();
-
-            // 勝率と合計数を表示
-            document.getElementById('win-rate').innerText = data.win_rate;
-            document.getElementById('total-games').innerText = `合計: ${data.total_games}戦`;
-
-            // テーブルを構築
-            const tableBody = document.getElementById('history-table');
-            data.history.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.date}</td>
-                    <td>${item.player_hand}</td>
-                    <td>${item.cpu_hand}</td>
-                    <td class="${item.result === '勝ち' ? 'result-win' : ''}">${item.result}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        loadHistory();
-    </script>
+    // 初回読み込み
+    loadHistory(1);
+</script>
 </body>
-</html>
+</html> 
