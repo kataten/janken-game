@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>対戦成績 - じゃんけんゲーム</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 30px; background-color: #f9f9f9; }
+        .stats-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; margin-bottom: 30px; min-width: 250px; }
+        .win-rate { font-size: 48px; color: #ff5722; font-weight: bold; }
+        table { margin: 0 auto; border-collapse: collapse; width: 80%; max-width: 600px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .result-win { color: #e91e63; font-weight: bold; }
+        .btn { padding: 10px 20px; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>あなたの対戦成績</h1>
+
+    <div class="stats-card">
+        <div>現在の勝率</div>
+        <div id="win-rate" class="win-rate">--%</div>
+        <div id="total-games">合計: --戦</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>日時</th>
+                <th>あなた</th>
+                <th>CPU</th>
+                <th>結果</th>
+            </tr>
+        </thead>
+        <tbody id="history-table">
+            </tbody>
+    </table>
+
+    <button class="btn" onclick="location.href='/top'">トップへ戻る</button>
+
+    <script>
+
+            // ページ読み込み時にログインチェック
+        if (!localStorage.getItem('player_id')) {
+            alert("ログインが必要です");
+            window.location.href = "/";
+    }
+
+        async function loadHistory() {
+            const playerId = localStorage.getItem('player_id');
+            if (!playerId) { window.location.href = "/"; return; }
+
+            const response = await fetch(`/history/${playerId}`);
+            const data = await response.json();
+
+            // 勝率と合計数を表示
+            document.getElementById('win-rate').innerText = data.win_rate;
+            document.getElementById('total-games').innerText = `合計: ${data.total_games}戦`;
+
+            // テーブルを構築
+            const tableBody = document.getElementById('history-table');
+            data.history.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.player_hand}</td>
+                    <td>${item.cpu_hand}</td>
+                    <td class="${item.result === '勝ち' ? 'result-win' : ''}">${item.result}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>

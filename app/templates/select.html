@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>じゃんけん中...</title>
+    <style>
+        body { text-align: center; padding-top: 50px; }
+        .hand-btn { font-size: 50px; padding: 20px; cursor: pointer; border-radius: 10px; margin: 10px; border: 2px solid #333; }
+        .hand-btn:hover { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h1>最初はグー！</h1>
+    <h2>じゃんけん...</h2>
+
+    <button class="hand-btn" onclick="play(0)">✊</button>
+    <button class="hand-btn" onclick="play(1)">✌️</button>
+    <button class="hand-btn" onclick="play(2)">🖐️</button>
+
+    <script>
+
+            // ページ読み込み時にログインチェック
+        if (!localStorage.getItem('player_id')) {
+            alert("ログインが必要です");
+            window.location.href = "/";
+        }
+        
+        async function play(hand) {
+            const playerId = localStorage.getItem('player_id');
+            // APIを叩く
+            const response = await fetch(`/janken/${playerId}/${hand}`);
+            const data = await response.json();
+            
+            // 結果を一時保存して結果画面へ
+            localStorage.setItem('last_result', JSON.stringify(data));
+            window.location.href = "/result_page";
+        }
+    </script>
+</body>
+</html>

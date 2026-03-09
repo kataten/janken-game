@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>じゃんけんゲーム - ログイン</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 320px; }
+        h1 { color: #333; margin-bottom: 20px; font-size: 24px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .login-btn { background-color: #4CAF50; color: white; }
+        .login-btn:hover { background-color: #45a049; }
+        .reg-btn { background-color: #2196F3; color: white; }
+        .reg-btn:hover { background-color: #1e88e5; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>じゃんけんゲーム</h1>
+        <p>ユーザー情報を入力してください</p>
+        <input type="text" id="username" placeholder="ユーザー名 (15文字以内)">
+        <input type="password" id="password" placeholder="パスワード (6文字以上)">
+        
+        <div class="btn-group">
+            <button class="login-btn" onclick="auth('login')">ログイン</button>
+            <button class="reg-btn" onclick="auth('register')">新規登録</button>
+        </div>
+    </div>
+
+    <script>
+        async function auth(type) {
+            const name = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!name || !password) {
+                alert("名前とパスワードを入力してください");
+                return;
+            }
+
+            // typeによって /login か /register に飛ばし分ける
+            const endpoint = type === 'login' ? '/login' : '/register';
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: name, password: password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                    // 取得した player_id と名前をブラウザに保存（重要！）
+                    localStorage.setItem('player_id', data.player_id);
+                    localStorage.setItem('player_name', data.name || name);
+                    
+                    // ログイン・登録成功したらトップページへ
+                    window.location.href = "/top";
+                } else {
+                    alert("エラー: " + data.detail);
+                }
+            } catch (error) {
+                alert("通信エラーが発生しました");
+            }
+        }
+    </script>
+</body>
+</html>
