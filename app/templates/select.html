@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>じゃんけん中...</title>
-    <style>
-        body { text-align: center; padding-top: 50px; }
-        .hand-btn { font-size: 50px; padding: 20px; cursor: pointer; border-radius: 10px; margin: 10px; border: 2px solid #333; }
-        .hand-btn:hover { background-color: #eee; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <h1>最初はグー！</h1>
     <h2>じゃんけん...</h2>
 
-    <button class="hand-btn" onclick="play(0)">✊</button>
-    <button class="hand-btn" onclick="play(1)">✌️</button>
-    <button class="hand-btn" onclick="play(2)">🖐️</button>
+    <div class="hand-group">
+        <button class="hand-btn" onclick="play(0)">
+            <img src="/static/rock.png" alt="グー">
+        </button>
+        <button class="hand-btn" onclick="play(1)">
+            <img src="/static/scissors.png" alt="チョキ">
+        </button>
+        <button class="hand-btn" onclick="play(2)">
+            <img src="/static/paper.png" alt="パー">
+        </button>
+    </div>
 
     <script>
 

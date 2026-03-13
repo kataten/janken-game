@@ -3,6 +3,8 @@ from app.database import engine, Base
 from app.routers import game, auth
 from app.models import game as models
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+import os
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -10,6 +12,10 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Janken Web App")
 app.include_router(game.router)
 app.include_router(auth.router)
+# static フォルダを /static というURLで公開する
+current_dir = os.path.dirname(os.path.abspath(__file__))
+static_path = os.path.join(current_dir, "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 @app.get("/")  # ブラウザで一番最初に開く場所
 def get_login_page(request: Request):

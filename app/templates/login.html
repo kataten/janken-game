@@ -4,18 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>じゃんけんゲーム - ログイン</title>
-    <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 320px; }
-        h1 { color: #333; margin-bottom: 20px; font-size: 24px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .login-btn { background-color: #4CAF50; color: white; }
-        .login-btn:hover { background-color: #45a049; }
-        .reg-btn { background-color: #2196F3; color: white; }
-        .reg-btn:hover { background-color: #1e88e5; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
@@ -30,6 +20,8 @@
             <button class="reg-btn" onclick="auth('register')">新規登録</button>
         </div>
     </div>
+
+    <div id="toast" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background: #4CAF50; color: white; padding: 15px 30px; border-radius: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; transition: opacity 0.5s;"></div>
 
     <script>
         async function auth(type) {
@@ -54,13 +46,19 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert(data.message);
+                    const toast = document.getElementById('toast');
+                    toast.innerText = type === 'login' ? "おかえりなさい！" : "登録が完了しました！";
+                    toast.style.display = 'block';
+                    toast.style.opacity = '1';
                     // 取得した player_id と名前をブラウザに保存（重要！）
                     localStorage.setItem('player_id', data.player_id);
                     localStorage.setItem('player_name', data.name || name);
                     
                     // ログイン・登録成功したらトップページへ
+                    // 1.5秒後にトップへ自動遷移
+                setTimeout(() => {
                     window.location.href = "/top";
+                }, 1500);
                 } else {
                     alert("エラー: " + data.detail);
                 }

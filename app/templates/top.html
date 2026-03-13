@@ -3,18 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>じゃんけんゲーム - トップ</title>
-    <style>
-        body { text-align: center; font-family: sans-serif; padding-top: 100px; }
-        .btn { padding: 20px 40px; font-size: 20px; cursor: pointer; margin: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1 id="welcome-msg">こんにちは！</h1>
-    
-    <button class="btn" onclick="location.href='/select'">じゃんけんをする</button>
-    <br>
-    <button class="btn" onclick="location.href='/history_page'">集計を見る</button>
-    <button class="btn" style="background-color: #f44336; color: white;" onclick="logout()">ログアウト</button>
+    <div class="container-box">
+        <h1 id="welcome-msg">こんにちは！</h1>
+        
+        <button class="btn" onclick="location.href='/select'">じゃんけんをする</button>
+        <br>
+        <button class="btn" onclick="location.href='/history_page'">集計を見る</button>
+        <button class="btn btn-logout" onclick="logout()">ログアウト</button>
+        
+        </div>
+
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>ログアウトしますか？</h3>
+            <p style="color:#666; font-size:14px;">また遊びに来てくださいね！</p>
+            <div class="modal-btns">
+                <button class="btn" onclick="closeLogoutModal()" style="background:#eee; color:#333; flex:1;">戻る</button>
+                <button class="btn" onclick="executeLogout()" style="background:#f44336; color:white; flex:1;">ログアウト</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ログイン時に保存した名前を表示
@@ -26,16 +38,22 @@
             window.location.href = "/";
         }
 
+        // ログアウトボタンが押されたとき
         function logout() {
-        if (confirm("ログアウトしますか？")) {
-            // 1. ブラウザに保存したデータを消去
+            document.getElementById('logout-modal').style.display = 'flex';
+        }
+
+        // キャンセルボタン
+        function closeLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'none';
+        }
+
+        // 本当にログアウトするとき
+        function executeLogout() {
             localStorage.removeItem('player_id');
             localStorage.removeItem('player_name');
-            
-            // 2. ログイン画面へ戻す
             window.location.href = "/";
         }
-    }
     </script>
 </body>
 </html>

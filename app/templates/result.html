@@ -3,70 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>じゃんけん結果 - ゲーム</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #f0f4f8; }
-        .result-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; }
-        .hands-container { display: flex; justify-content: center; align-items: center; gap: 40px; margin: 20px 0; }
-        .hand-label { font-size: 18px; color: #666; }
-        .hand-icon { font-size: 80px; margin-top: 10px; }
-        .vs { font-size: 40px; font-weight: bold; color: #ccc; }
-        .judgment { font-size: 48px; font-weight: bold; margin: 30px 0; color: #ff5722; }
-        .btn { padding: 12px 25px; font-size: 18px; cursor: pointer; margin: 10px; border: none; border-radius: 8px; transition: 0.2s; }
-        .btn-retry { background-color: #2196F3; color: white; }
-        .btn-history { background-color: #4CAF50; color: white; }
-        .btn:hover { opacity: 0.8; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-    <div class="result-box">
-        <h1>対戦結果</h1>
+    <div class="container-box"> <h1>対戦結果</h1>
 
         <div class="hands-container">
             <div>
                 <div class="hand-label">あなた</div>
-                <div id="player-hand" class="hand-icon">--</div>
+                <div class="hand-icon">
+                    <img id="player-hand-img" src="" alt="" class="hand-image">
+                </div>
             </div>
             <div class="vs">VS</div>
             <div>
                 <div class="hand-label">CPU</div>
-                <div id="cpu-hand" class="hand-icon">--</div>
+                <div class="hand-icon">
+                    <img id="cpu-hand-img" src="" alt="" class="hand-image">
+                </div>
             </div>
         </div>
 
         <div id="judgment-text" class="judgment">判定中...</div>
 
-        <button class="btn btn-retry" onclick="location.href='/select'">もう一度遊ぶ</button>
-        <button class="btn btn-history" onclick="location.href='/history_page'">成績を見る</button>
-        <br>
-        <button style="margin-top:20px; background:none; border:none; color:blue; cursor:pointer; text-decoration:underline;" onclick="location.href='/top'">トップに戻る</button>
+        <div class="result-actions">
+            <button class="btn btn-main" onclick="location.href='/select'">もう一度遊ぶ</button>
+
+            <div class="sub-actions">
+                <button class="btn btn-sub" onclick="location.href='/history_page'">成績を見る</button>
+                <button class="btn btn-logout" onclick="location.href='/top'">トップへ</button>
+            </div>
+        </div>
     </div>
 
     <script>
-
-            // ページ読み込み時にログインチェック
+        // ログインチェック
         if (!localStorage.getItem('player_id')) {
-            alert("ログインが必要です");
             window.location.href = "/";
         }
         
-        // localStorageに保存された対戦結果を取り出す
         const resultData = JSON.parse(localStorage.getItem('last_result'));
 
         if (resultData) {
-            const icons = {0: "✊", 1: "✌️", 2: "🖐️"};
+            const imagePaths = {
+                0: "/static/rock.png",
+                1: "/static/scissors.png",
+                2: "/static/paper.png"
+            };
             const messages = {0: "あいこ！", 1: "あなたの負け...", 2: "あなたの勝ち！"};
 
-            // 画面に反映
-            document.getElementById('player-hand').innerText = icons[resultData.player];
-            document.getElementById('cpu-hand').innerText = icons[resultData.cpu];
-            document.getElementById('judgment-text').innerText = messages[resultData.result];
+            document.getElementById('player-hand-img').src = imagePaths[resultData.player];
+            document.getElementById('cpu-hand-img').src = imagePaths[resultData.cpu];
             
-            // 勝ち・負け・引き分けで色を変える演出（お好みで）
-            if (resultData.result === 2) document.getElementById('judgment-text').style.color = "#e91e63"; // 勝ち
-            if (resultData.result === 0) document.getElementById('judgment-text').style.color = "#777";    // あいこ
+            const jText = document.getElementById('judgment-text');
+            jText.innerText = messages[resultData.result];
+            
+            // 色の演出
+            if (resultData.result === 2) jText.style.color = "#e91e63"; // 勝ち：ピンク赤
+            if (resultData.result === 0) jText.style.color = "#777";    // あいこ：グレー
         } else {
-            // 結果データがない場合は選択画面に戻す
             window.location.href = "/select";
         }
     </script>
